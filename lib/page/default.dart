@@ -51,13 +51,24 @@ class _DefaultPageState extends State<DefaultPage> {
 
     if (image != null) {
       imagePath = image.path;
-      await Navigator.push(
+      print("imagePath: $imagePath");
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => AddEditPlate(image: image),
         ),
       );
+      if (result != null) {
+        final data = await MobilDatabase.instance.getAllData(); // refresh list
+        setState(() {
+          _dataMobil = data;
+        });
+      }
       _refreshDB();
+    } else {
+      // Handle the case when no image is selected
+      print('No image selected.');
+      return;
     }
   }
 

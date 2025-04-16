@@ -23,14 +23,13 @@ class AddEditPlate extends StatefulWidget {
 class _AddEditPlateState extends State<AddEditPlate> {
   final _formKey = GlobalKey<FormState>();
 
-  late String _name;
-  late File _image;
-  late String _platDaerah;
-  late String _platNomor;
-  late String _platRegional;
-  late String _imagePath;
-
-  var _isUpdateForm = false;
+  String _name = '';
+  File _image = File('');
+  String _platDaerah = '';
+  String _platNomor = '';
+  String _platRegional = '';
+  String _imagePath = '';
+  bool _isUpdateForm = false;
 
   Future<String> _fileFromImageUrl(String url) async {
     final response = await http.get(Uri.parse(url));
@@ -65,10 +64,18 @@ class _AddEditPlateState extends State<AddEditPlate> {
   }
 
   Future<void> _saveImage(XFile imageFile) async {
+    final sourceFile = File(imageFile.path);
+
+    if (!await sourceFile.exists()) {
+      print("File does not exist: ${sourceFile.path}");
+      return;
+    }
+    
     final directory = await getApplicationSupportDirectory();
     final path = directory.path;
     final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    final savedImage = await File(imageFile.path).copy('$path/$fileName.png');
+
+    final savedImage = await sourceFile.copy('$path/$fileName.png');
 
     setState(() {
       _image = savedImage;
@@ -80,7 +87,12 @@ class _AddEditPlateState extends State<AddEditPlate> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, null);
+        return false;
+      },
+      child: Scaffold(
         appBar: AppBar(
           title: Text('$_platDaerah $_platNomor $_platRegional'),
         ),
@@ -111,7 +123,8 @@ class _AddEditPlateState extends State<AddEditPlate> {
             ),
             _buildBtnSave(context)
           ]),
-        ));
+        ))
+    );
   }
 
   Widget _buildBtnSave(BuildContext context) {
@@ -126,7 +139,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
               } else {
                 await _addNote();
               }
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             }
           },
           style: ButtonStyle(
