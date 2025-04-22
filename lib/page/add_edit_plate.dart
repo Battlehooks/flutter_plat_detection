@@ -5,7 +5,6 @@ import 'package:plat_number_detection/database/mobil_db.dart';
 import 'package:plat_number_detection/models/data_mobil.dart';
 import 'package:plat_number_detection/theme.dart';
 import 'package:plat_number_detection/widgets/plate_form_widget.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 class AddEditPlate extends StatefulWidget {
