@@ -5,18 +5,16 @@ import 'package:plat_number_detection/page/add_edit_plate.dart';
 import 'package:plat_number_detection/theme.dart';
 import 'package:plat_number_detection/widgets/plate_preview.dart';
 import 'package:image_picker/image_picker.dart';
-
 class DefaultPage extends StatefulWidget {
   const DefaultPage({super.key});
   @override
   State<DefaultPage> createState() => _DefaultPageState();
 }
-
 class _DefaultPageState extends State<DefaultPage> {
-  late List<DataMobil> _dataMobil;
+  late List<DataMobil> _dataMobil = [];
   final ImagePicker _picker = ImagePicker();
   late String imagePath;
-
+  bool _isLoading = false;
   Future<void> _pickImage(BuildContext context) async {
     final XFile? image = await showModalBottomSheet<XFile?>(
       context: context,
@@ -48,7 +46,6 @@ class _DefaultPageState extends State<DefaultPage> {
         );
       },
     );
-
     if (image != null) {
       imagePath = image.path;
       print("imagePath: $imagePath");
@@ -59,21 +56,12 @@ class _DefaultPageState extends State<DefaultPage> {
         ),
       );
       if (result != null) {
-        final data = await MobilDatabase.instance.getAllData(); // refresh list
-        setState(() {
-          _dataMobil = data;
-        });
+        await _refreshDB();
       }
-      _refreshDB();
     } else {
-      // Handle the case when no image is selected
       print('No image selected.');
-      return;
     }
   }
-
-  var _isLoading = false;
-
   Future<void> _refreshDB() async {
     setState(() {
       _isLoading = true;
@@ -83,46 +71,44 @@ class _DefaultPageState extends State<DefaultPage> {
       _isLoading = false;
     });
   }
-
   @override
   void initState() {
     super.initState();
     _refreshDB();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Plat App',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: primaryColor,
+      appBar: AppBar(
+        title: const Text(
+          'Plat App',
+          style: TextStyle(color: Colors.white),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: primaryColor,
-          onPressed: () => _pickImage(context),
-          // onPressed: () async {
-          //   await MobilDatabase.instance.deleteAllRecords();
-          // },
-          child: const Icon(Icons.camera_alt, color: Colors.white70),
-        ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _dataMobil.isEmpty
-                ? const Center(child: Text("Data Kosong"))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _dataMobil.length,
-                    itemBuilder: (context, index) {
-                      final plat = _dataMobil[index];
-                      return GestureDetector(
-                          onTap: () {},
-                          child: PlatePreview(
-                              dataMobil: plat, callBackFunction: _refreshDB));
-                      // Text('SALAMALEKOM'));
-                    },
-                  ));
+        backgroundColor: primaryColor,
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: primaryColor,
+        onPressed: () => _pickImage(context),
+        child: const Icon(Icons.camera_alt, color: Colors.white70),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _dataMobil.isEmpty
+              ? const Center(child: Text("Data Kosong"))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _dataMobil.length,
+                  itemBuilder: (context, index) {
+                    final plat = _dataMobil[index];
+                    return GestureDetector(
+                      onTap: () {},
+                      child: PlatePreview(
+                        dataMobil: plat,
+                        callBackFunction: _refreshDB,
+                      ),
+                    );
+                  },
+                ),
+    );
   }
 }
