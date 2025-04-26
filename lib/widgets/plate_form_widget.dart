@@ -11,6 +11,7 @@ class DataFormEditWidget extends StatelessWidget {
       required this.platDaerah,
       required this.platNomor,
       required this.platRegional,
+      required this.jenisKendaraan,
       required this.onChangePlatDaerah,
       required this.onChangePlatNomor,
       required this.onChangePlatRegional,
@@ -20,6 +21,7 @@ class DataFormEditWidget extends StatelessWidget {
   final String platDaerah;
   final String platNomor;
   final String platRegional;
+  final String jenisKendaraan;
   final ValueChanged<String> onChangePlatDaerah;
   final ValueChanged<String> onChangePlatNomor;
   final ValueChanged<String> onChangePlatRegional;
@@ -79,7 +81,20 @@ class DataFormEditWidget extends StatelessWidget {
                   ],
                 ),
               ),
-            ])
+            ]),
+            const SizedBox(height: 24.0),
+            if (jenisKendaraan.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Jenis Kendaraan: $jenisKendaraan',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -7,6 +7,7 @@ class DataMobilFields {
   static const String platDaerah = 'platDaerah';
   static const String platNomor = 'platNomor';
   static const String platRegional = 'platRegional';
+  static const String jenisKendaraan = 'jenisKendaraan';
   static const String timestamp = 'timestamp';
 }
 
@@ -17,6 +18,7 @@ class DataMobil {
   final String platDaerah;
   final String platNomor;
   final String platRegional;
+  final String jenisKendaraan;
   final DateTime timestamp;
 
   DataMobil(
@@ -26,6 +28,7 @@ class DataMobil {
       required this.platDaerah,
       required this.platNomor,
       required this.platRegional,
+      required this.jenisKendaraan,
       required this.timestamp});
 
   DataMobil copy(
@@ -35,6 +38,7 @@ class DataMobil {
       String? platDaerah,
       String? platNomor,
       String? platRegional,
+      String? jenisKendaraan,
       DateTime? timestamp}) {
     return DataMobil(
         id: id,
@@ -43,6 +47,7 @@ class DataMobil {
         platDaerah: platDaerah ?? this.platDaerah,
         platNomor: platNomor ?? this.platNomor,
         platRegional: platRegional ?? this.platRegional,
+        jenisKendaraan: jenisKendaraan ?? this.jenisKendaraan,
         timestamp: timestamp ?? this.timestamp);
   }
 
@@ -53,6 +58,7 @@ class DataMobil {
         platDaerah: json[DataMobilFields.platDaerah].toString(),
         platNomor: json[DataMobilFields.platNomor].toString(),
         platRegional: json[DataMobilFields.platRegional].toString(),
+        jenisKendaraan: json[DataMobilFields.jenisKendaraan]?.toString() ?? '',
         timestamp: DateTime.parse(json[DataMobilFields.timestamp] as String),
       );
 
@@ -64,6 +70,7 @@ class DataMobil {
       DataMobilFields.platDaerah: platDaerah,
       DataMobilFields.platNomor: platNomor,
       DataMobilFields.platRegional: platRegional,
+      DataMobilFields.jenisKendaraan: jenisKendaraan,
       DataMobilFields.timestamp: timestamp.toIso8601String()
     };
   }

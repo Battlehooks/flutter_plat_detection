@@ -72,11 +72,41 @@ class PlatePreview extends StatelessWidget {
             Row(
               children: [
                 GestureDetector(
-                    onTap: () async {
+                  onTap: () async {
+                    // Display an alert dialog to confirm deletion
+                    bool? confirmDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: const Text(
+                              'Are you sure you want to delete this item?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    
+                    // If the user confirmed deletion, proceed to delete the data
+                    if (confirmDelete == true) {
                       await MobilDatabase.instance.deleteDataById(dataMobil.id!);
                       callBackFunction();
-                    },
-                    child: const Icon(Icons.delete, color: primaryColor))
+                    }
+                  },
+                  child: const Icon(Icons.delete, color: primaryColor),
+                )
               ],
             )
           ],

@@ -48,7 +48,7 @@ class _DefaultPageState extends State<DefaultPage> {
     );
     if (image != null) {
       imagePath = image.path;
-      print("imagePath: $imagePath");
+      debugPrint("imagePath: $imagePath");
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -59,7 +59,7 @@ class _DefaultPageState extends State<DefaultPage> {
         await _refreshDB();
       }
     } else {
-      print('No image selected.');
+      debugPrint('No image selected.');
     }
   }
   Future<void> _refreshDB() async {
