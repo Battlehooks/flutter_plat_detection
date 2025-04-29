@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class DataFormEditWidget extends StatelessWidget {
+class DataFormEditWidget extends StatefulWidget {
   const DataFormEditWidget(
       {super.key,
       required this.name,
       required this.image,
-      required this.platDaerah,
-      required this.platNomor,
-      required this.platRegional,
+      required this.platDaerahController,
+      required this.platNomorController,
+      required this.platRegionalController,
       required this.jenisKendaraan,
       required this.onChangePlatDaerah,
       required this.onChangePlatNomor,
@@ -18,14 +18,18 @@ class DataFormEditWidget extends StatelessWidget {
       });
   final String name;
   final String image;
-  final String platDaerah;
-  final String platNomor;
-  final String platRegional;
+  final TextEditingController platDaerahController;
+  final TextEditingController platNomorController;
+  final TextEditingController platRegionalController;
   final String jenisKendaraan;
   final ValueChanged<String> onChangePlatDaerah;
   final ValueChanged<String> onChangePlatNomor;
   final ValueChanged<String> onChangePlatRegional;
+  @override
+  _DataFormEditWidgetState createState() => _DataFormEditWidgetState();
+}
 
+class _DataFormEditWidgetState extends State<DataFormEditWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -37,9 +41,9 @@ class DataFormEditWidget extends StatelessWidget {
           children: [
             ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: image.startsWith('http') ?
+                child: widget.image.startsWith('http') ?
                 Image.network('https://picsum.photos/500', width: 347, height: 195, fit: BoxFit.cover) :
-                Image.file(File(image), width: 347, height: 195, fit: BoxFit.cover)
+                Image.file(File(widget.image), width: 347, height: 195, fit: BoxFit.cover)
             ),
             const SizedBox(height: 48),
             Row(children: [
@@ -83,11 +87,11 @@ class DataFormEditWidget extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: 24.0),
-            if (jenisKendaraan.isNotEmpty)
+            if (widget.jenisKendaraan.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Jenis Kendaraan: $jenisKendaraan',
+                'Jenis Kendaraan: ${widget.jenisKendaraan}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -104,7 +108,7 @@ class DataFormEditWidget extends StatelessWidget {
   Widget _buildPlatDaerah() {
     return TextFormField(
       maxLines: 1,
-      initialValue: platDaerah,
+      controller: widget.platDaerahController,
       inputFormatters: [CapitalizedTextFormatter()],
       maxLength: 2,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
@@ -113,7 +117,7 @@ class DataFormEditWidget extends StatelessWidget {
           hintStyle: TextStyle(color: Colors.grey),
           counterText: ''
           ),
-      onChanged: onChangePlatDaerah,
+      onChanged: widget.onChangePlatDaerah,
       validator: (platDaerah) {
         return platDaerah != null && platDaerah.isEmpty
             ? 'Plat Daerah tidak bisa kosong'
@@ -125,7 +129,7 @@ class DataFormEditWidget extends StatelessWidget {
   Widget _buildPlatNomor() {
     return TextFormField(
       maxLines: 1,
-      initialValue: platNomor,
+      controller: widget.platNomorController,
       keyboardType: TextInputType.number,
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))
@@ -137,7 +141,7 @@ class DataFormEditWidget extends StatelessWidget {
           hintStyle: TextStyle(color: Colors.grey),
           counterText: ''
           ),
-      onChanged: onChangePlatNomor,
+      onChanged: widget.onChangePlatNomor,
       validator: (platNomor) {
         return platNomor != null && platNomor.isEmpty
             ? 'Plat Nomor tidak bisa kosong'
@@ -149,16 +153,16 @@ class DataFormEditWidget extends StatelessWidget {
   Widget _buildPlatRegional() {
     return TextFormField(
       maxLines: 1,
-      initialValue: platRegional,
+      controller: widget.platRegionalController,
       inputFormatters: [CapitalizedTextFormatter()],
-      maxLength: 2,
+      maxLength: 3,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
       decoration: const InputDecoration(
           hintText: 'BR',
           hintStyle: TextStyle(color: Colors.grey),
           counterText: ''
           ),
-      onChanged: onChangePlatRegional,
+      onChanged: widget.onChangePlatRegional,
     );
   }
 }

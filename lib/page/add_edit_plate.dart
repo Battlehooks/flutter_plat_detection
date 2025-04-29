@@ -25,46 +25,100 @@ class _AddEditPlateState extends State<AddEditPlate> {
   String _platRegional = '';
   String _jenisKendaraan = '';
   bool _isUpdateForm = false;
+  bool _isLoading = true;
+  final _platDaerahController = TextEditingController();
+  final _platNomorController = TextEditingController();
+  final _platRegionalController = TextEditingController();
   @override
   void initState() {
     super.initState();
+    _initializeForm();
+  }
+  Future<void> _initializeForm() async {
     _name = widget.mobil?.name ?? '';
     _platDaerah = widget.mobil?.platDaerah ?? '';
     _platNomor = widget.mobil?.platNomor ?? '';
     _platRegional = widget.mobil?.platRegional ?? '';
     _jenisKendaraan = widget.mobil?.jenisKendaraan ?? '';
     _isUpdateForm = widget.mobil != null;
+
+    _platDaerahController.text = _platDaerah;
+    _platNomorController.text = _platNomor;
+    _platRegionalController.text = _platRegional;
+
     if (_isUpdateForm) {
       final imageFile = File(widget.mobil!.image);
       if (imageFile.existsSync()) {
         _image = imageFile;
-      } else {
-        debugPrint('⚠️ Image file not found at ${widget.mobil!.image}');
-        // you could set a default placeholder here, e.g. leave _image = null
       }
     } else if (widget.image != null) {
       _image = File(widget.image!.path);
-      _handleImagePredictionAndSave(widget.image!);
-      _saveImage(widget.image!);
+      await _handleImagePredictionAndSave(widget.image!);
+      await _saveImage(widget.image!);
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
   Future<void> _handleImagePredictionAndSave(XFile imageFile) async {
-  try {
-    final result = await detectVehicleClass(File(imageFile.path));
-    setState(() {
-      _jenisKendaraan = result ?? "Unknown";
-    });
-  } catch (e) {
-    debugPrint('Error detecting vehicle class: $e');
+    try {
+      final detection = await detectVehicleAndPlate(File(imageFile.path));
+      if (detection != null) {
+        setState(() {
+          _jenisKendaraan = detection.vehicleType ?? "";
+        });
+        if (detection.plateText != null && detection.plateText!.isNotEmpty) {
+          _prefillPlateFromText(detection.plateText!);
+        }
+        debugPrint('Detected vehicle type: ${detection.vehicleType}');
+        debugPrint('Vehicle bounding box: ${detection.vehicleBox}');
+        if (detection.plateBox != null) {
+          debugPrint('Plate bounding box: ${detection.plateBox}');
+        }
+        debugPrint('Plate Prediction: ${detection.plateText}');
+      } else {
+        setState(() {
+          _jenisKendaraan = "";
+        });
+      }
+    } catch (e) {
+      debugPrint('Error detecting vehicle: $e');
+    }
+    await _saveImage(imageFile);
   }
+  void _prefillPlateFromText(String plateText) {
+    debugPrint("Confirming plate text: $plateText");
+    final parts = plateText.trim().split(' ');
 
-  await _saveImage(imageFile);
-}
-Future<void> _saveImage(XFile imageFile) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (parts.length >= 2) {
+        debugPrint("→ Assigned: ${parts[0]} ${parts.length > 1 ? parts[1] : ''}");  // 👈 Add this
+        _platDaerahController.text = parts[0]; // First part -> Plat Daerah
+      
+        // Check if second part is purely number
+        if (RegExp(r'^\d+$').hasMatch(parts[1])) {
+          _platNomorController.text = parts[1]; // Second part (if number) -> Plat Nomor
+        } else {
+          _platNomorController.text = ''; // if not number, leave empty
+        }
+      
+        if (parts.length > 2) {
+          // Join the rest if there are more than 2 parts
+          _platRegionalController.text = parts.sublist(2).join(' '); // Third part and beyond -> Plat Regional
+        } else {
+          _platRegionalController.text = '';
+        }
+      } else {
+        debugPrint("Plate text format not recognized: $plateText");
+      }
+    });
+  }
+  Future<void> _saveImage(XFile imageFile) async {
     try {
       final sourceFile = File(imageFile.path);
       if (!await sourceFile.exists()) {
-        print("File does not exist: ${sourceFile.path}");
+        debugPrint("File does not exist: ${sourceFile.path}");
         return;
       }
       final directory = await getApplicationDocumentsDirectory();
@@ -76,15 +130,18 @@ Future<void> _saveImage(XFile imageFile) async {
           _image = savedImage;
         });
       }).catchError((error) {
-        print('Error copying image: $error');
+        debugPrint('Error copying image: $error');
       });
     } catch (e) {
-      print('Error saving image: $e');
+      debugPrint('Error saving image: $e');
       // Handle the error appropriately, maybe show a user message
     }
   }
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context, true);
@@ -100,9 +157,9 @@ Future<void> _saveImage(XFile imageFile) async {
             DataFormEditWidget(
               name: _name,
               image: _image?.path ?? '',
-              platDaerah: _platDaerah,
-              platNomor: _platNomor,
-              platRegional: _platRegional,
+              platDaerahController: _platDaerahController,
+              platNomorController: _platNomorController,
+              platRegionalController: _platRegionalController,
               jenisKendaraan: _jenisKendaraan,
               onChangePlatDaerah: (value) {
                 setState(() {
@@ -121,7 +178,7 @@ Future<void> _saveImage(XFile imageFile) async {
               },
             ),
             _buildBtnSave(context),
-            if (_isUpdateForm) _buildBtnDelete(context)
+            if (_isUpdateForm) _buildBtnDelete(context),
           ]),
         ),
       ),
@@ -133,6 +190,10 @@ Future<void> _saveImage(XFile imageFile) async {
       child: ElevatedButton(
         onPressed: () async {
           final isValid = _formKey.currentState!.validate();
+          // ✅ sync values from controller before saving
+          _platDaerah = _platDaerahController.text;
+          _platNomor = _platNomorController.text;
+          _platRegional = _platRegionalController.text;
           if (isValid) {
             if (_isUpdateForm) {
               await _updateNote();
