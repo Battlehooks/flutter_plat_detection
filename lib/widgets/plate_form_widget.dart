@@ -99,6 +99,7 @@ class _DataFormEditWidgetState extends State<DataFormEditWidget> {
                 ),
               ),
             ),
+            const SizedBox(height: 24.0)
           ],
         ),
       ),

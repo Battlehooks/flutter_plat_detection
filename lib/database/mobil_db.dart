@@ -20,11 +20,11 @@ class MobilDatabase {
     final path = join(dbPath, filePath);
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute('ALTER TABLE $tableDB ADD COLUMN ${DataMobilFields.jenisKendaraan} TEXT NOT NULL DEFAULT ""');
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE $tableDB ADD COLUMN ${DataMobilFields.plateBox} TEXT NOT NULL DEFAULT \'[]\'');
         }
       },
     );
@@ -40,6 +40,7 @@ class MobilDatabase {
         ${DataMobilFields.platNomor} TEXT NOT NULL,
         ${DataMobilFields.platRegional} TEXT NOT NULL,
         ${DataMobilFields.jenisKendaraan} TEXT NOT NULL,
+        ${DataMobilFields.plateBox} TEXT NOT NULL,
         ${DataMobilFields.timestamp} TEXT NOT NULL
       )
     ''';

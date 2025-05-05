@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 const String tableDB = 'platNomor';
 
 class DataMobilFields {
@@ -8,6 +10,7 @@ class DataMobilFields {
   static const String platNomor = 'platNomor';
   static const String platRegional = 'platRegional';
   static const String jenisKendaraan = 'jenisKendaraan';
+  static const String plateBox = 'plateBox';
   static const String timestamp = 'timestamp';
 }
 
@@ -19,6 +22,7 @@ class DataMobil {
   final String platNomor;
   final String platRegional;
   final String jenisKendaraan;
+  final List<double>? plateBox;
   final DateTime timestamp;
 
   DataMobil(
@@ -29,6 +33,7 @@ class DataMobil {
       required this.platNomor,
       required this.platRegional,
       required this.jenisKendaraan,
+      required this.plateBox,
       required this.timestamp});
 
   DataMobil copy(
@@ -39,6 +44,7 @@ class DataMobil {
       String? platNomor,
       String? platRegional,
       String? jenisKendaraan,
+      List<double>? plateBox,
       DateTime? timestamp}) {
     return DataMobil(
         id: id,
@@ -48,6 +54,7 @@ class DataMobil {
         platNomor: platNomor ?? this.platNomor,
         platRegional: platRegional ?? this.platRegional,
         jenisKendaraan: jenisKendaraan ?? this.jenisKendaraan,
+        plateBox: plateBox ?? this.plateBox,
         timestamp: timestamp ?? this.timestamp);
   }
 
@@ -59,6 +66,9 @@ class DataMobil {
         platNomor: json[DataMobilFields.platNomor].toString(),
         platRegional: json[DataMobilFields.platRegional].toString(),
         jenisKendaraan: json[DataMobilFields.jenisKendaraan]?.toString() ?? '',
+        plateBox: json[DataMobilFields.plateBox] != null
+            ? List<double>.from(json[DataMobilFields.plateBox] as List)
+            : null,
         timestamp: DateTime.parse(json[DataMobilFields.timestamp] as String),
       );
 
@@ -71,6 +81,7 @@ class DataMobil {
       DataMobilFields.platNomor: platNomor,
       DataMobilFields.platRegional: platRegional,
       DataMobilFields.jenisKendaraan: jenisKendaraan,
+      DataMobilFields.plateBox: jsonEncode(plateBox),
       DataMobilFields.timestamp: timestamp.toIso8601String()
     };
   }

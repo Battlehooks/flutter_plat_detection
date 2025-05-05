@@ -24,6 +24,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
   String _platNomor = '';
   String _platRegional = '';
   String _jenisKendaraan = '';
+  List<double> _plateBox = [];
   bool _isUpdateForm = false;
   bool _isLoading = true;
   final _platDaerahController = TextEditingController();
@@ -40,6 +41,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
     _platNomor = widget.mobil?.platNomor ?? '';
     _platRegional = widget.mobil?.platRegional ?? '';
     _jenisKendaraan = widget.mobil?.jenisKendaraan ?? '';
+    _plateBox = widget.mobil?.plateBox ?? [];
     _isUpdateForm = widget.mobil != null;
 
     _platDaerahController.text = _platDaerah;
@@ -270,6 +272,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
       platNomor: _platNomor,
       platRegional: _platRegional,
       jenisKendaraan: _jenisKendaraan,
+      plateBox: _plateBox,
       timestamp: DateTime.now(),
     );
     await MobilDatabase.instance.create(note);
@@ -283,6 +286,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
       platNomor: _platNomor,
       platRegional: _platRegional,
       jenisKendaraan: _jenisKendaraan,
+      plateBox: _plateBox,
       timestamp: DateTime.now(),
     );
     await MobilDatabase.instance.updateNote(updateNote);
