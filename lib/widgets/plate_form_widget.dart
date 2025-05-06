@@ -12,6 +12,7 @@ class DataFormEditWidget extends StatefulWidget {
       required this.platNomorController,
       required this.platRegionalController,
       required this.jenisKendaraan,
+      required this.plateBox,
       required this.onChangePlatDaerah,
       required this.onChangePlatNomor,
       required this.onChangePlatRegional,
@@ -22,12 +23,19 @@ class DataFormEditWidget extends StatefulWidget {
   final TextEditingController platNomorController;
   final TextEditingController platRegionalController;
   final String jenisKendaraan;
+  final List<double> plateBox;
   final ValueChanged<String> onChangePlatDaerah;
   final ValueChanged<String> onChangePlatNomor;
   final ValueChanged<String> onChangePlatRegional;
+
   @override
   _DataFormEditWidgetState createState() => _DataFormEditWidgetState();
 }
+
+const double _displayW = 347;
+const double _displayH = 195;
+const double _inputW   = 640;   // size fed to the detector – adjust if different
+const double _inputH   = 640;
 
 class _DataFormEditWidgetState extends State<DataFormEditWidget> {
   @override
@@ -39,12 +47,7 @@ class _DataFormEditWidgetState extends State<DataFormEditWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: widget.image.startsWith('http') ?
-                Image.network('https://picsum.photos/500', width: 347, height: 195, fit: BoxFit.cover) :
-                Image.file(File(widget.image), width: 347, height: 195, fit: BoxFit.cover)
-            ),
+            _buildImageWithBox(),
             const SizedBox(height: 48),
             Row(children: [
               Expanded(
@@ -103,6 +106,41 @@ class _DataFormEditWidgetState extends State<DataFormEditWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImageWithBox() {
+    final baseImage = ClipRRect(
+      borderRadius: BorderRadius.circular(8.0),
+      child: widget.image.startsWith('http')
+          ? Image.network(widget.image, width: _displayW, height: _displayH, fit: BoxFit.cover)
+          : Image.file(File(widget.image), width: _displayW, height: _displayH, fit: BoxFit.cover),
+    );
+
+    if (widget.plateBox.length != 4) return baseImage;
+
+    final scaleX = _displayW / _inputW;
+    final scaleY = _displayH / _inputH;
+    final left   = widget.plateBox[0] * scaleX;
+    final top    = widget.plateBox[1] * scaleY;
+    final boxW   = widget.plateBox[2] * scaleX;
+    final boxH   = widget.plateBox[3] * scaleY;
+
+    return Stack(
+      children: [
+        baseImage,
+        Positioned(
+          left: left,
+          top:  top,
+          child: Container(
+            width:  boxW,
+            height: boxH,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.red, width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

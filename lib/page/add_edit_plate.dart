@@ -163,6 +163,7 @@ class _AddEditPlateState extends State<AddEditPlate> {
               platNomorController: _platNomorController,
               platRegionalController: _platRegionalController,
               jenisKendaraan: _jenisKendaraan,
+              plateBox: _plateBox,
               onChangePlatDaerah: (value) {
                 setState(() {
                   _platDaerah = value;
