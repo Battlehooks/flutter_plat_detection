@@ -67,8 +67,10 @@ class DataMobil {
         platRegional: json[DataMobilFields.platRegional].toString(),
         jenisKendaraan: json[DataMobilFields.jenisKendaraan]?.toString() ?? '',
         plateBox: json[DataMobilFields.plateBox] != null
-            ? List<double>.from(json[DataMobilFields.plateBox] as List)
-            : null,
+            ? (jsonDecode(json[DataMobilFields.plateBox] as String) as List)
+            .map((e) => (e as num).toDouble())
+            .toList()
+            : <double>[],
         timestamp: DateTime.parse(json[DataMobilFields.timestamp] as String),
       );
 
@@ -81,7 +83,7 @@ class DataMobil {
       DataMobilFields.platNomor: platNomor,
       DataMobilFields.platRegional: platRegional,
       DataMobilFields.jenisKendaraan: jenisKendaraan,
-      DataMobilFields.plateBox: jsonEncode(plateBox),
+      DataMobilFields.plateBox: jsonEncode(plateBox ?? <double>[]),
       DataMobilFields.timestamp: timestamp.toIso8601String()
     };
   }
